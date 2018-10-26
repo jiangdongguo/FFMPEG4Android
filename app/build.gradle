@@ -14,6 +14,9 @@ android {
                 arguments "-DANDROID_ARM_NEON=TRUE", "-DANDROID_TOOLCHAIN=clang","-DCMAKE_BUILD_TYPE=Release"
                 //'-DANDROID_STL=gnustl_static'
                 cppFlags "-std=c++11","-frtti", "-fexceptions"
+//                arguments "-DANDROID_ARM_NEON=TRUE", "-DANDROID_TOOLCHAIN=clang","-DCMAKE_BUILD_TYPE=Release"
+//                '-DANDROID_STL=gnustl_static'
+//                cppFlags "-std=c++11","-frtti", "-fexceptions","-DCOCOS2D_DEBUG=1","-Wno-literal-suffix","-fsigned-char"
             }
         }
         // 设置输出指定目标平台so

@@ -1,20 +1,14 @@
-# Sets the minimum version of CMake required to build the native
-# library. You should either keep the default value or only pass a
-# value of 3.4.0 or lower.
-
 cmake_minimum_required(VERSION 3.4.1)
 
-
-# Creates and names a library, sets it as either STATIC
-# or SHARED, and provides the relative paths to its source code.
-# You can define multiple libraries, and CMake builds it for you.
-# Gradle automatically packages shared libraries with your APK.
-
 set(CMAKE_VERBOSE_MAKEFILE on)
+# 设置so输出路径
+# set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/src/main/jniLibs/${ANDROID_ABI})
+# 赋值变量libs
 set(libs "${CMAKE_SOURCE_DIR}/src/main/jniLibs")
+# 导入ffmpeg相关头文件
 include_directories(${CMAKE_SOURCE_DIR}/src/main/cpp/include)
 
-#-----------------------------导入动态库--------------------------------------
+#-----------------------------导入ffmpeg库--------------------------------------
 add_library(libavcodec-57 SHARED IMPORTED )
 set_target_properties(libavcodec-57 PROPERTIES
     IMPORTED_LOCATION "${libs}/${ANDROID_ABI}/libavcodec-57.so")
@@ -51,7 +45,7 @@ set_target_properties(libswscale-4 PROPERTIES
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11 -fexceptions -frtti")
 
 add_library( # Sets the name of the library.
-             ffmpeg332
+             decstream
 
              # Sets the library as a shared library.
              SHARED
@@ -59,7 +53,9 @@ add_library( # Sets the name of the library.
              # Provides a relative path to your source file(s).
              # Associated headers in the same location as their source
              # file are automatically included.
-             src/main/cpp/FFMPEG4Android.c)
+             src/main/cpp/nativesurface.cpp
+             src/main/cpp/util.cpp
+             src/main/cpp/SaveStream.cpp)
 
 find_library( # Sets the name of the path variable.
               log-lib
@@ -68,7 +64,7 @@ find_library( # Sets the name of the path variable.
               # you want CMake to locate.
               log)
 
-target_link_libraries(ffmpeg332 android log
+target_link_libraries(decstream android log
     libavcodec-57
     libavdevice-57
     libavfilter-6
