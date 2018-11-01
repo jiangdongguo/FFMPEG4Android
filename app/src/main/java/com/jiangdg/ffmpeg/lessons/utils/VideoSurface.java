@@ -1,4 +1,4 @@
-package com.teligen.ffmpeg;
+package com.jiangdg.ffmpeg.lessons.utils;
 
 import android.content.Context;
 import android.util.AttributeSet;
@@ -23,7 +23,7 @@ public class VideoSurface extends SurfaceView implements SurfaceHolder.Callback{
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-        nativeSetSurface(holder.getSurface());
+//        nativeSetSurface(holder.getSurface());
     }
 
     @Override
@@ -41,14 +41,14 @@ public class VideoSurface extends SurfaceView implements SurfaceHolder.Callback{
         void onFrame();
     }
 
-    static {
-        System.loadLibrary("decstream");
-    }
+//    static {
+//        System.loadLibrary("decstream");
+//    }
 
-    private native void nativeSetSurface(Surface surface);
-
-    public native void nativePauseSurface();
-    public native void nativeResumeSurface();
-    public native void nativeStopSurface();
-    public native void setOnFrameListener(OnFrameListener listener);
+//    private native void nativeSetSurface(Surface surface);
+//
+//    public native void nativePauseSurface();
+//    public native void nativeResumeSurface();
+//    public native void nativeStopSurface();
+//    public native void setOnFrameListener(OnFrameListener listener);
 }

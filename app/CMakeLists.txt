@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.4.1)
 
 set(CMAKE_VERBOSE_MAKEFILE on)
 # 设置so输出路径
-# set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/src/main/jniLibs/${ANDROID_ABI})
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/src/main/jniLibs/${ANDROID_ABI})
 # 赋值变量libs
 set(libs "${CMAKE_SOURCE_DIR}/src/main/jniLibs")
 # 导入ffmpeg相关头文件
@@ -44,18 +44,14 @@ set_target_properties(libswscale-4 PROPERTIES
 #------------------------------配置、链接动态库--------------------------------
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11 -fexceptions -frtti")
 
-add_library( # Sets the name of the library.
-             decstream
+add_library(
+             avstream
 
-             # Sets the library as a shared library.
              SHARED
 
-             # Provides a relative path to your source file(s).
-             # Associated headers in the same location as their source
-             # file are automatically included.
-             src/main/cpp/nativesurface.cpp
+             src/main/cpp/NativeSurface.cpp
              src/main/cpp/util.cpp
-             src/main/cpp/SaveStream.cpp)
+             src/main/cpp/lessons/SaveStream.cpp)
 
 find_library( # Sets the name of the path variable.
               log-lib
@@ -64,7 +60,7 @@ find_library( # Sets the name of the path variable.
               # you want CMake to locate.
               log)
 
-target_link_libraries(decstream android log
+target_link_libraries(avstream android log
     libavcodec-57
     libavdevice-57
     libavfilter-6
