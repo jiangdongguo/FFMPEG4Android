@@ -7,6 +7,20 @@
 bool stop;
 //    char input_str[500] = {0};
 //    sprintf(input_str, "%s", url);
+const int sampleRates[16] = {96000, 88200,64000, 48000,44100,32000,
+                       24000,22050,16000,12000,11025,8000,7350,
+                       -1,-1,-1};
+
+int getSampleRateIndex(int sRate) {
+    int i,index = 0;
+    for(i=0; i<16; i++) {
+        if(sRate == sampleRates[i]) {
+            index = i;
+            break;
+        }
+    }
+    return index;
+}
 
 extern "C"
 JNIEXPORT jint JNICALL
@@ -14,15 +28,12 @@ Java_com_jiangdg_natives_NativeFFmpeg_openVideo(JNIEnv *env, jclass type, jstrin
                                                 jobject surface, jobject listener) {
 
     stop = false;
-    int videoIndex = -1;
+    int videoIndex = -1,audioIndex = -1;
     int ret = -1, videoWidth = 0, videoHeight = 0;
     const char *inputUrl = env->GetStringUTFChars(url_, 0);
     AVFrame *pAvFrame = av_frame_alloc();
     AVFrame *pRGBAFrame = av_frame_alloc();
     AVPacket *pPacket = (AVPacket *) av_malloc(sizeof(AVPacket));
-
-    jclass jcls = env->GetObjectClass(listener);
-    jmethodID jID = env->GetMethodID(jcls, "onStreamAcquire", "([BII)V");
 
     //-----------------------------------------------------------------
     //---------------1.初始化FFmpeg引擎/打开输入文件inputUrl---------------
@@ -36,6 +47,7 @@ Java_com_jiangdg_natives_NativeFFmpeg_openVideo(JNIEnv *env, jclass type, jstrin
     //(2) 创建与输入文件对应的inputContext
     // 并保存打开输入文件获取到的数据
     AVFormatContext *inputContext = avformat_alloc_context();
+
     ret = avformat_open_input(&inputContext, inputUrl, NULL, NULL);
     if (ret < 0) {
         return ret;
@@ -47,9 +59,16 @@ Java_com_jiangdg_natives_NativeFFmpeg_openVideo(JNIEnv *env, jclass type, jstrin
     }
     unsigned int nb_streams = inputContext->nb_streams;
     for (unsigned int i = 0; i < nb_streams; i++) {
-        if (inputContext->streams[i]->codec->codec_type == AVMEDIA_TYPE_VIDEO) {
+        if (inputContext->streams[i]->codec->codec_type == AVMEDIA_TYPE_VIDEO ) {
+            if(videoIndex != -1) {
+                continue;
+            }
             videoIndex = i;
-            break;
+        } else if(inputContext->streams[i]->codec->codec_type == AVMEDIA_TYPE_AUDIO) {
+            if(audioIndex != -1) {
+                continue;
+            }
+            audioIndex = i;
         }
     }
     if (videoIndex == -1) {
@@ -124,25 +143,69 @@ Java_com_jiangdg_natives_NativeFFmpeg_openVideo(JNIEnv *env, jclass type, jstrin
                          1);
 
     //(2) 逐帧解码，并将解码得到的YUV转换为RGB进行渲染
+    jclass jcls = env->GetObjectClass(listener);
+    jmethodID jID = env->GetMethodID(jcls, "onStreamAcquire", "([BIJI)V");
+    char *pADTS = (char *)malloc(sizeof(char) * 7);
+    int chanCfg = inputContext->streams[audioIndex]->codec->channels;
+    int profile = inputContext->streams[audioIndex]->codec->profile;
+
+    int freqIdx = getSampleRateIndex(inputContext->streams[audioIndex]->codec->sample_rate);
+    LOG_I("channels = %d,profile = %d,sampleRate = %d",chanCfg,profile,freqIdx);
+
     while (! stop)
     {
         if (av_read_frame(inputContext, pPacket) >= 0) {
 
             LOGI("---------->获取packet中的数据(H.264)，返回给Java层");
 
-            if ((pPacket)->stream_index != videoIndex) {
-                continue;
-            }
             uint8_t *data = pPacket->data;
             int len = pPacket->size;
-            jbyteArray h264Arr = env->NewByteArray(len);
-            if (h264Arr != NULL) {
-                env->SetByteArrayRegion(h264Arr, 0, len, (jbyte *) data);
-                env->CallVoidMethod(listener, jID, h264Arr, len, 1);
+
+            if(videoIndex == pPacket-> stream_index) {
+                jbyteArray encodeData = env->NewByteArray(len);
+                if (encodeData != NULL) {
+                    env->SetByteArrayRegion(encodeData, 0, len, (jbyte *) data);
+                    env->CallVoidMethod(listener, jID, encodeData, len, pPacket->pts, 1);
+                }
+                env->DeleteLocalRef(encodeData);
+            } else if(audioIndex == pPacket->stream_index){
+                int newLength = len + 7;
+                pADTS[0] = (char)0xFF;
+                pADTS[1] = (char)0xF1;
+                pADTS[2] = (char)(((profile - 1) << 6) + (freqIdx << 2) + (chanCfg >> 2));
+                pADTS[3] = (char) (((chanCfg & 3) << 6) + (newLength >> 11));
+                pADTS[4] = (char) ((newLength & 0x7FF) >> 3);
+                pADTS[5] = (char) (((newLength & 7) << 5) + 0x1F);
+                pADTS[6] = (char)0xFC;
+                char *newData = (char *)malloc(sizeof(char) * newLength);
+                memset(newData,0,newLength);
+                // ADTS头部
+                memcpy(newData,pADTS,7);
+                // AAC ES流
+                memcpy(newData+7,data,len);
+
+//                LOG_I("----------------->pADTS0=%x",pADTS[0]);
+//                LOG_I("----------------->pADTS1=%x",pADTS[1]);
+//                LOG_I("----------------->pADTS2=%x",pADTS[2]);
+//                LOG_I("----------------->pADTS3=%x",pADTS[3]);
+//                LOG_I("----------------->pADTS4=%x",pADTS[4]);
+//                LOG_I("----------------->pADTS5=%x",pADTS[5]);
+//                LOG_I("----------------->pADTS6=%x",pADTS[6]);
+                jbyteArray encodeData = env->NewByteArray(newLength);
+                if (encodeData != NULL) {
+                    env->SetByteArrayRegion(encodeData, 0, newLength, (jbyte *) newData);
+                    env->CallVoidMethod(listener, jID, encodeData, newLength, pPacket->pts, 0);
+                }
+                env->DeleteLocalRef(encodeData);
+
+                free(newData);
             }
 
-            LOGI("---------->解码H.264，存储到pAvFrame...");
 
+            LOGI("---------->解码H.264，存储到pAvFrame...");
+            if (videoIndex != pPacket->stream_index) {
+                continue;
+            }
             int frameFinished = 0;
             int code = avcodec_decode_video2(pCodecCtx, pAvFrame, &frameFinished, pPacket);
 
@@ -179,13 +242,12 @@ Java_com_jiangdg_natives_NativeFFmpeg_openVideo(JNIEnv *env, jclass type, jstrin
                     LOGI("---------->完成渲染到屏幕");
                 }
             }
-            // 是否数组引用,否则会报“local reference table overflow (max=512)”
-            env->DeleteLocalRef(h264Arr);
         }
         // Wipe the packet
         av_packet_unref(pPacket);
     }
 
+    free(pADTS);
     //-----------------------------------------------------------------
     //-----------------------------4.释放资源----------------------------
     //-----------------------------------------------------------------
@@ -251,4 +313,70 @@ Java_com_jiangdg_natives_NativeFFmpeg_saveStreamFile(JNIEnv *env, jclass type_, 
     env->ReleaseStringUTFChars(inputUrl_, inputUrl);
     env->ReleaseStringUTFChars(outputPath_, outputPath);
     return ret;
+}
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_jiangdg_natives_NativeFFmpeg_nativeInit(JNIEnv *env, jobject instance) {
+
+
+
+
+}extern "C"
+JNIEXPORT jint JNICALL
+Java_com_jiangdg_natives_NativeFFmpeg_nativeRelease(JNIEnv *env, jobject instance) {
+
+
+
+
+}extern "C"
+JNIEXPORT jint JNICALL
+Java_com_jiangdg_natives_NativeFFmpeg_openInputURL(JNIEnv *env, jobject instance,
+                                                   jstring inputUrl_) {
+    const char *inputUrl = env->GetStringUTFChars(inputUrl_, 0);
+
+
+
+
+    env->ReleaseStringUTFChars(inputUrl_, inputUrl);
+}extern "C"
+JNIEXPORT jint JNICALL
+Java_com_jiangdg_natives_NativeFFmpeg_saveStream(JNIEnv *env, jobject instance, jint type,
+                                                 jstring outputPath_) {
+    const char *outputPath = env->GetStringUTFChars(outputPath_, 0);
+
+
+
+
+    env->ReleaseStringUTFChars(outputPath_, outputPath);
+}extern "C"
+JNIEXPORT jint JNICALL
+Java_com_jiangdg_natives_NativeFFmpeg_nativePausePlayer(JNIEnv *env, jobject instance) {
+
+
+
+
+}extern "C"
+JNIEXPORT jint JNICALL
+Java_com_jiangdg_natives_NativeFFmpeg_nativeResumePlayer(JNIEnv *env, jobject instance) {
+
+
+
+
+}
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_jiangdg_natives_NativeFFmpeg_nativeStopPlayer(JNIEnv *env, jobject instance) {
+
+
+
+
+}
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_jiangdg_natives_NativeFFmpeg_setSurface(JNIEnv *env, jobject instance, jobject surface) {
+
+
 }

@@ -16,13 +16,15 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
 public class DrawStreamActivity extends AppCompatActivity implements SurfaceHolder.Callback {
-//        private static final String URL_PATH = "rtsp://192.192.191.105:554/rtsp_live1";
+    //        private static final String URL_PATH = "rtsp://192.192.191.105:554/rtsp_live1";
     private static final String URL_PATH = "rtsp://184.72.239.149/vod/mp4:BigBuckBunny_115k.mov";
     //        private static final String URL_PATH = "rtsp://14.23.71.110:10554/152353460083592708.sdp";
+//private static final String URL_PATH = "https://media.w3.org/2010/05/sintel/trailer.mp4";
     private SurfaceView mSurfaceView;
-    private static final String PATH = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "result.264";
+    private static final String PATH = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "33333.aac";
     private FileOutputStream os;
 
     @Override
@@ -36,14 +38,17 @@ public class DrawStreamActivity extends AppCompatActivity implements SurfaceHold
 
     @Override
     public void surfaceCreated(final SurfaceHolder holder) {
-
+        createFile();
         new Thread(new Runnable() {
             @Override
             public void run() {
                 int result = NativeFFmpeg.openVideo(URL_PATH, holder.getSurface(), new NativeFFmpeg.OnStreamAcquireListener() {
                     @Override
-                    public void onStreamAcquire(byte[] data, int len, int type) {
-                        Log.d("DrawStreamActivity", "写入文件中....." + data.length);
+                    public void onStreamAcquire(byte[] data, int len, long pts, int type) {
+                        if (type == 0) {
+                            writeFile(data, len);
+                        }
+                        Log.d("DrawStreamActivity", "dat=" + data.length + "--->pts=" + pts + "--->type" + type);
                     }
                 });
 
@@ -68,7 +73,9 @@ public class DrawStreamActivity extends AppCompatActivity implements SurfaceHold
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
         NativeFFmpeg.stopVideo();
+        closeFile();
     }
+
 
     private void createFile() {
         File file = new File(PATH);
@@ -82,10 +89,10 @@ public class DrawStreamActivity extends AppCompatActivity implements SurfaceHold
         }
     }
 
-    private void writeFile(byte[] data) {
+    private void writeFile(byte[] data, int len) {
         if (os != null) {
             try {
-                os.write(data);
+                os.write(data, 0, len);
 
             } catch (IOException e) {
                 if (os != null) {

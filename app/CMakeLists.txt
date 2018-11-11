@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.4.1)
 
 set(CMAKE_VERBOSE_MAKEFILE on)
 # 设置so输出路径
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/src/main/jniLibs/${ANDROID_ABI})
+#set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/src/main/jniLibs/${ANDROID_ABI})
 # 赋值变量libs
 set(libs "${CMAKE_SOURCE_DIR}/src/main/jniLibs")
 # 导入ffmpeg相关头文件
@@ -50,8 +50,8 @@ add_library(
              SHARED
 
              src/main/cpp/NativeSurface.cpp
-             src/main/cpp/util.cpp
-             src/main/cpp/lessons/SaveStream.cpp)
+             src/main/cpp/lessons/SaveStream.cpp
+             src/main/cpp/lessons/Global.cpp)
 
 find_library( # Sets the name of the path variable.
               log-lib

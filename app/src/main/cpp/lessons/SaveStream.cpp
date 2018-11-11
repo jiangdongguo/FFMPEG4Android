@@ -7,6 +7,7 @@
 
 AVFormatContext *inputContext;
 AVFormatContext *outputContext;
+
 AVPacket *packet;
 
 void closeOutput() {
@@ -33,6 +34,7 @@ void initFFmpeg() {
     avformat_network_init();
     // 设置log等级
     av_log_set_level(AV_LOG_ERROR);
+
     // 创建一个AVPacket，并开辟一段空间
     packet = (AVPacket *) av_malloc(sizeof(AVPacket));
 }
@@ -67,11 +69,13 @@ int openOutput(const char *outUrl) {
     }
     // 第二步：创建并初始化一个AVIOContext，以访问outUrl指定的资源
     ret = avio_open2(&outputContext->pb, outUrl, AVIO_FLAG_WRITE, NULL, NULL);
+
     if (ret < 0) {
         LOGE("打开avio失败");
         closeOutput();
         return ret;
     }
+
     // 第三步：根据inputContext的流信息，创建新流添加到outputContext
     int inputStreamNb = inputContext->nb_streams;
     for (int i = 0; i < inputStreamNb; i++) {
