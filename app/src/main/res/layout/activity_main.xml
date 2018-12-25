@@ -4,6 +4,20 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:padding="20dp"
+        android:text="FFmpeg4Android示例教程
+
+        蒋东国(https://blog.csdn.net/andrexpert )" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="#99000000" />
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -11,20 +25,39 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:padding="20dp"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:padding="20dp">
 
             <Button
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Saving Stream(保存网络流)"
-                android:onClick="onSavingStream"/>
+                android:gravity="start|center"
+                android:onClick="onPlayAudio"
+                android:text="Lsn01：播放音频" />
 
             <Button
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Drawing Stream(渲染网络流)"
-                android:onClick="onDrawingStream"/>
+                android:gravity="start|center"
+                android:onClick="onPlayVideo"
+                android:layout_marginTop="10dp"
+                android:text="Lsn02：播放视频(无声音)" />
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="start|center"
+                android:onClick="onPlayMedia"
+                android:layout_marginTop="10dp"
+                android:text="Lsn03：播放视频(有声音)" />
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="start|center"
+                android:onClick="onSaveStream"
+                android:layout_marginTop="10dp"
+                android:text="Lsn04：保存网络流" />
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

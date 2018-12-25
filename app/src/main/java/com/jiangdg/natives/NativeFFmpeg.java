@@ -11,34 +11,34 @@ public class NativeFFmpeg {
         System.loadLibrary("avstream");
     }
 
-    public interface OnStreamAcquireListener {
-        void onStreamAcquire(byte[] data,int len,long pts,int type);
+    private static NativeFFmpeg instance;
+
+    private NativeFFmpeg(){}
+
+    public static NativeFFmpeg getInstance() {
+        if(instance == null) {
+            synchronized (NativeFFmpeg.class) {
+                if(instance == null) {
+                    instance = new NativeFFmpeg();
+                }
+            }
+        }
+        return instance;
     }
 
-    public static native int openVideo(String url,Surface surface,OnStreamAcquireListener listener);
-    public static native void stopVideo();
+    //------------------------------ Lsn01：FFmpeg+OpenSL ES播放音频--------------------------
+    public native int nativeStartPlayAudio(String url);
+    public native void nativeStopPlayAudio();
 
-    // Save Stream，保存网络流
-    public static native void init();
-    public static native int saveStreamFile(String inputUrl,int type,String outputPath);
-    public static native void release();
+    //------------------------------ Lsn02：FFmpeg+NativeWindow播放视频(无音频)----------------
+    public native int nativeStartPlayVideo(String url,Surface surface);
+    public native void nativeStopPlayVideo();
 
-    // 初始化/释放资源
-    public native int nativeInit();
-    public native int nativeRelease();
-    public native int openInputURL(String inputUrl);
+    //------------------------------ Lsn03：FFmpeg+NativeWindow播放视频(无音频)----------------
+    public native int nativeStartPlayMedia(String url,Surface surface);
+    public native void nativeStopPlayMedia();
 
-    //------------------------------ Lesson01：保存网络流到文件--------------------------
-
-    // saveStream
-    // @param inputUrl 输入url路径
-    // @parms type 保存文件格式
-    // @parms outputPath 文件输出路径
-    public native int saveStream(int type,String outputPath);
-
-    //------------------------------ Lesson02：网络流转发，渲染Surface--------------------------
-    public native int nativePausePlayer();
-    public native int nativeResumePlayer();
-    public native int nativeStopPlayer();
-    public native int setSurface(Surface surface);
+    //------------------------------ Lsn04：保存网络流----------------
+    public native int nativeStartSaveStream(String url,String outPath);
+    public native void nativeStopSaveStream();
 }

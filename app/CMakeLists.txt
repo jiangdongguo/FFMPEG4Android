@@ -9,65 +9,88 @@ set(libs "${CMAKE_SOURCE_DIR}/src/main/jniLibs")
 include_directories(${CMAKE_SOURCE_DIR}/src/main/cpp/include)
 
 #-----------------------------导入ffmpeg库--------------------------------------
-add_library(libavcodec-57 SHARED IMPORTED )
+add_library(libavcodec-57 SHARED IMPORTED)
 set_target_properties(libavcodec-57 PROPERTIES
-    IMPORTED_LOCATION "${libs}/${ANDROID_ABI}/libavcodec-57.so")
+        IMPORTED_LOCATION "${libs}/${ANDROID_ABI}/libavcodec-57.so")
 
-add_library(libavdevice-57 SHARED IMPORTED )
+add_library(libavdevice-57 SHARED IMPORTED)
 set_target_properties(libavdevice-57 PROPERTIES
-    IMPORTED_LOCATION "${libs}/${ANDROID_ABI}/libavdevice-57.so")
+        IMPORTED_LOCATION "${libs}/${ANDROID_ABI}/libavdevice-57.so")
 
-add_library(libavfilter-6 SHARED IMPORTED )
+add_library(libavfilter-6 SHARED IMPORTED)
 set_target_properties(libavfilter-6 PROPERTIES
-    IMPORTED_LOCATION "${libs}/${ANDROID_ABI}/libavfilter-6.so")
+        IMPORTED_LOCATION "${libs}/${ANDROID_ABI}/libavfilter-6.so")
 
-add_library(libavformat-57 SHARED IMPORTED )
+add_library(libavformat-57 SHARED IMPORTED)
 set_target_properties(libavformat-57 PROPERTIES
-    IMPORTED_LOCATION "${libs}/${ANDROID_ABI}/libavformat-57.so")
+        IMPORTED_LOCATION "${libs}/${ANDROID_ABI}/libavformat-57.so")
 
-add_library(libavutil-55 SHARED IMPORTED )
+add_library(libavutil-55 SHARED IMPORTED)
 set_target_properties(libavutil-55 PROPERTIES
-    IMPORTED_LOCATION "${libs}/${ANDROID_ABI}/libavutil-55.so")
+        IMPORTED_LOCATION "${libs}/${ANDROID_ABI}/libavutil-55.so")
 
-add_library(libpostproc-54 SHARED IMPORTED )
+add_library(libpostproc-54 SHARED IMPORTED)
 set_target_properties(libpostproc-54 PROPERTIES
-    IMPORTED_LOCATION "${libs}/${ANDROID_ABI}/libpostproc-54.so")
+        IMPORTED_LOCATION "${libs}/${ANDROID_ABI}/libpostproc-54.so")
 
-add_library(libswresample-2 SHARED IMPORTED )
+add_library(libswresample-2 SHARED IMPORTED)
 set_target_properties(libswresample-2 PROPERTIES
-    IMPORTED_LOCATION "${libs}/${ANDROID_ABI}/libswresample-2.so")
+        IMPORTED_LOCATION "${libs}/${ANDROID_ABI}/libswresample-2.so")
 
-add_library(libswscale-4 SHARED IMPORTED )
+add_library(libswscale-4 SHARED IMPORTED)
 set_target_properties(libswscale-4 PROPERTIES
-    IMPORTED_LOCATION "${libs}/${ANDROID_ABI}/libswscale-4.so")
+        IMPORTED_LOCATION "${libs}/${ANDROID_ABI}/libswscale-4.so")
 
 #------------------------------配置、链接动态库--------------------------------
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11 -fexceptions -frtti")
 
 add_library(
-             avstream
+        avstream
 
-             SHARED
+        SHARED
 
-             src/main/cpp/NativeSurface.cpp
-             src/main/cpp/lessons/SaveStream.cpp
-             src/main/cpp/lessons/Global.cpp)
+        src/main/cpp/NativeFFmpeg.cpp
 
-find_library( # Sets the name of the path variable.
-              log-lib
+        # PlayAudio示例源码
+        src/main/cpp/lessons/PlayAudio/ffmpeg_audio.cpp
+        src/main/cpp/lessons/PlayAudio/openSLES_audio.cpp
+        src/main/cpp/lessons/PlayAudio/threads_play_audio.cpp
+        src/main/cpp/lessons/PlayAudio/utils_audio.cpp
 
-              # Specifies the name of the NDK library that
-              # you want CMake to locate.
-              log)
+        # PlayVideo示例源码
+        src/main/cpp/lessons/PlayVideo/ffmpeg_video.cpp
+        src/main/cpp/lessons/PlayVideo/nativeWindow_video.cpp
+        src/main/cpp/lessons/PlayVideo/threads_play_video.cpp
+        src/main/cpp/lessons/PlayVideo/utils_video.cpp
 
-target_link_libraries(avstream android log
-    libavcodec-57
-    libavdevice-57
-    libavfilter-6
-    libavformat-57
-    libavutil-55
-    libpostproc-54
-    libswresample-2
-    libswscale-4
-    ${log-lib}
-    )
+        # PlayStream示例源码
+        src/main/cpp/lessons/PlayStream/ffmpeg_stream.cpp
+        src/main/cpp/lessons/PlayStream/native_window.cpp
+        src/main/cpp/lessons/PlayStream/threads_play_stream.cpp
+        src/main/cpp/lessons/PlayStream/openSLES_stream.cpp
+        src/main/cpp/lessons/PlayStream/queue_stream.cpp
+
+        # SaveStream示例源码
+        src/main/cpp/lessons/SaveStream/ffmpeg_save.cpp
+        src/main/cpp/lessons/SaveStream/thread_save_streams.cpp)
+
+# 查找NDK原生库log
+find_library(log-lib log)
+# 查找NDK原生库OpenSLES
+find_library(openSLES-lib openSLES)
+# 查找NDK原生库android
+find_library(android-lib android)
+
+# 链接所有库到avstream
+target_link_libraries(avstream
+        libavcodec-57
+        libavdevice-57
+        libavfilter-6
+        libavformat-57
+        libavutil-55
+        libpostproc-54
+        libswresample-2
+        libswscale-4
+        ${log-lib}
+        ${openSLES-lib}
+        ${android-lib})

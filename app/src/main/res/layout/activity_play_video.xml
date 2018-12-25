@@ -7,7 +7,7 @@
     tools:context="com.jiangdg.ffmpeg.lessons.PlayMediaActivity">
 
     <SurfaceView
-        android:id="@+id/surfaceview_playmedia"
+        android:id="@+id/surface_play_video"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_constraintBottom_toBottomOf="parent"
