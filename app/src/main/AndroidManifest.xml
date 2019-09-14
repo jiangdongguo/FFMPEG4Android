@@ -27,20 +27,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <activity
-            android:name=".lessons.PlayAudioActivity"
-            android:screenOrientation="portrait" />
-
-        <activity android:name=".lessons.PlayVideoActivity"
-            android:screenOrientation="portrait"/>
-
-        <activity
-            android:name=".lessons.PlayMediaActivity"
-            android:screenOrientation="portrait" />
-
-        <activity android:name=".lessons.SaveStreamActivity"
-            android:screenOrientation="portrait"/>
     </application>
 
 </manifest>
