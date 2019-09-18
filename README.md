@@ -12,6 +12,6 @@
 
 ### 1. [DemoOpenSLES](https://github.com/jiangdongguo/FFMPEG4Android/tree/master/DemoOpenSLES)
 
-&emsp;该项目利用ffmpeg+OpenSLES库播放网络音频流，其中，ffmpeg用于解协议、解码得到合适的pcm数据，openSLES用于播放pcm数据。讲解博客：[Android直播开发之旅(13)：使用FFmpeg+OpenSL ES播放PCM音频](https://blog.csdn.net/gongxp123456/article/details/62418752)  
+&emsp;该项目利用ffmpeg+OpenSLES库播放网络音频流，其中，ffmpeg用于解协议、解码得到合适的pcm数据，openSLES用于播放pcm数据。讲解博客：[Android直播开发之旅(13)：使用FFmpeg+OpenSL ES播放PCM音频](https://blog.csdn.net/AndrExpert/article/details/85254794)  
 
 ![Android播放PCM音频项目实战](https://img-blog.csdnimg.cn/20181225215430873.PNG?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0FuZHJFeHBlcnQ=,size_16,color_FFFFFF,t_70)
