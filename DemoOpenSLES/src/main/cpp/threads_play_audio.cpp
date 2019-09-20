@@ -70,6 +70,7 @@ void *play_audio_thread(void *argv) {
             playQueuePut(&global_openSL.queue_play,pcmData);
         }
     }
+    return NULL;
 }
 
 void stopAllThread_audio() {
