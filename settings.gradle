@@ -1,1 +1,1 @@
-include ':app', ':DemoOpenSLES', ':DemoSDLRender', ':DemoSaveFile', ':libsdl'
+include ':app', ':DemoOpenSLES', ':DemoSDLRender', ':DemoSaveFile', ':libsdl', ':LibSDL2'
