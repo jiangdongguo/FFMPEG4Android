@@ -1,4 +1,4 @@
-### FFMPEG4Android项目收录的是自己在工作学习中使用ffmpeg进行音视频处理的各种案例，除了ffmpeg本身具备的功能，这里面还结合了大量的第三方库来处理音视频数据，比如OpenSLES、SDL等等。其中，ffmpeg的版本为`4.0.2`，在`Ubuntu16.04`环境下裁剪编译，NDK版本为`r14b`，支持`armeabi`、`armeabi-v7a`以及`arm64-v8a`架构。  
+### FFMPEG4Android项目收录的是自己在工作学习中使用ffmpeg进行音视频处理的各种案例，除了ffmpeg本身具备的功能，这里面还结合了大量的第三方库来处理音视频数据，比如OpenSLES、SDL等等。其中，ffmpeg的版本为`4.0.2`，在`Ubuntu16.04`环境下裁剪编译，NDK版本为`r14b`，支持`armeabi`、`armeabi-v7a`以及`arm64-v8a`架构。
 
 
 ### FFmpeg入门教程  
