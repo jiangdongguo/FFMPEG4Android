@@ -18,5 +18,6 @@
 
 ### 2. [DemoSaveFile](https://github.com/jiangdongguo/FFMPEG4Android/tree/master/DemoSaveFile)
 
-&emsp;该项目利用ffmpeg将rtsp、rtmp等网络流保存到文件，封装格式为MP4。讲解博客：Android直播开发之旅(16)：FFmpeg保存网络流到本地文件
+&emsp;该项目利用ffmpeg将rtsp、rtmp等网络流保存到文件，封装格式为MP4。讲解博客：[Android直播开发之旅(16)：FFmpeg保存网络流到本地文件 ](https://jiangdg.blog.csdn.net/article/details/101537742) 
+![DemoSaveFile](https://img-blog.csdnimg.cn/20190927152645559.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9qaWFuZ2RnLmJsb2cuY3Nkbi5uZXQ=,size_16,color_FFFFFF,t_70)
 
