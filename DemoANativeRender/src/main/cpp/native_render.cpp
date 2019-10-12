@@ -7,6 +7,7 @@
 #include "utils_render.h"
 #include "window_render.h"
 #include <pthread.h>
+#include <unistd.h>
 
 #define NUM_METHODS(x) ((int)(sizeof(x)/ sizeof(x[0])))
 
@@ -17,12 +18,17 @@ RGBPacketQueue *queue;
 void *decode_thread(void * args);
 void *render_thread(void *args);
 
+struct RenderParams {
+    int width;
+    int height;
+};
+
 char * jstringToString(JNIEnv *env, jstring j_str) {
     const  char* c_str = env->GetStringUTFChars(j_str, JNI_FALSE);
     jsize len = env->GetStringLength(j_str);
     char *ret = NULL;
     if(len > 0) {
-        (char *)malloc((len+1) * sizeof(char));
+        ret = (char *)malloc((len+1) * sizeof(char));
         memset(ret, 0, (len + 1));
         memcpy(ret, c_str, len);
         ret[len] = 0;
@@ -66,8 +72,12 @@ void *decode_thread(void * args) {
     queue = (RGBPacketQueue *)malloc(sizeof(RGBPacketQueue));
     queue_rgb_init(queue);
     // 开启渲染线程
+    RenderParams * params = (RenderParams *)malloc(sizeof(RenderParams));
+    params->width = getVideoWidth();
+    params->height = getVideoHeight();
+
     pthread_t id_render_thread = 0;
-    pthread_create(&id_render_thread, NULL, render_thread, NULL);
+    pthread_create(&id_render_thread, NULL, render_thread, params);
 
     // 每帧图像解码、转换格式
     while (readH264DataFromAVPacket() == 0) {
@@ -79,28 +89,28 @@ void *decode_thread(void * args) {
             rgbPacket->data = g_render.rgbFrame->data[0];
             rgbPacket->size = g_render.rgbFrame->linesize[0];
             queue_rgb_put(queue, rgbPacket);
-            RLOG_I("----- decode a frame");
+            RLOG_I("----- decode a video frame");
         }
     }
     // 等待渲染完毕，释放资源
-    if(queue) {
-        free(queue);
-    }
+    sleep(1);
     if(input_url) {
         free(input_url);
     }
     releaseRenderFFmpeg();
+    RLOG_I("##### stop decode video success.");
     return NULL;
 }
 
 void *render_thread(void *args) {
     pthread_detach(pthread_self());
-    if(! args) {
-        RLOG_E("");
+    RenderParams* params = (RenderParams *)args;
+    if(! params) {
+        RLOG_E("args can not be null in render_thread");
         return NULL;
     }
-    int width = 0;
-    int height = 0;
+    int width = params->width;
+    int height = params->height;
     // 绑定当前线程到JVM，获取JNIEnv实例
     JNIEnv *env = NULL;
     if(! g_jvm || g_jvm->GetEnv(reinterpret_cast<void **>(env), JNI_VERSION_1_4) > 0) {
@@ -118,24 +128,27 @@ void *render_thread(void *args) {
     // 循环读取RGB数据包，渲染
     RGBPacket packet;
     RGBPacket *rgbPacket = &packet;
-    while(queue_rgb_get(queue, rgbPacket) > 0) {
-        if(g_exit) {
+    for(;;) {
+        if (g_exit) {
             break;
         }
-        if(! rgbPacket) {
-            continue;
+        // 渲染rgb
+        if(queue_rgb_get(queue,rgbPacket) > 0) {
+            if(render_window(rgbPacket->data, rgbPacket->size) >= 0) {
+                RLOG_I("##### render a frame");
+            }
         }
-        render_window(reinterpret_cast<int8_t *>(rgbPacket->data), rgbPacket->size);
-        free(rgbPacket);
-        RLOG_I("##### render a frame");
     }
-
     // 释放资源
     if(g_surfaceObj) {
         env->DeleteGlobalRef(g_surfaceObj);
     }
+    if(params) {
+        free(params);
+    }
     g_jvm->DetachCurrentThread();
     destory_native_window();
+    RLOG_I("##### stop render success.");
     return NULL;
 }
 

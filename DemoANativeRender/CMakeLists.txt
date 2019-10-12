@@ -6,7 +6,7 @@ set(CMAKE_VERBOSE_MAKEFILE on)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/src/main/output/${ANDROID_ABI})
 
 # 将ffmpeg.so路径保存到变量mylibs
-set(mylibs ${PROJECT_SOURCE_DIR}/src/main/jniLibs)
+set(ffmpeglibs "${PROJECT_SOURCE_DIR}/src/main/jniLibs")
 # 导入ffmpeg头文件
 include_directories(${PROJECT_SOURCE_DIR}/src/main/cpp/include)
 
@@ -15,8 +15,8 @@ add_library(libffmpeg SHARED IMPORTED)
 set_target_properties(
         libffmpeg
         PROPERTIES
-        LOCATION_IMPORTED
-        "${mylibs}/${ANDROID_ABI}/libffmpeg.so"
+        IMPORTED_LOCATION
+        "${ffmpeglibs}/${ANDROID_ABI}/libffmpeg.so"
 )
 
 # 配置编译选项

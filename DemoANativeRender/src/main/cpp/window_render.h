@@ -17,14 +17,14 @@ extern "C" {
 
 struct RenderNativeWindow {
     ANativeWindow *nWindow;
-    ANativeWindow_Buffer *outBuffer;
+    ANativeWindow_Buffer outBuffer;
     int width;
     int height;
 };
 
 int create_native_window(JNIEnv *env, jobject _surface);
 int set_buffers_geometry(int width, int height);
-int render_window(int8_t * src_data , int src_stride);
+int render_window(uint8_t * src_data , int src_stride);
 void destory_native_window();
 
 

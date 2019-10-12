@@ -27,18 +27,18 @@ int set_buffers_geometry(int width, int height) {
     return ANativeWindow_setBuffersGeometry(g_nativewindow.nWindow, width, height, WINDOW_FORMAT_RGBA_8888);
 }
 
-int render_window(int8_t * src_data , int src_stride) {
-    if(! g_nativewindow.nWindow) {
-        RLOG_E("render window failed,as window is null");
+int render_window(uint8_t * src_data , int src_stride) {
+    if(! g_nativewindow.nWindow || ! src_data || src_stride==0) {
+        RLOG_E("render window failed,as window or src_data is null");
         return -1;
     }
-    int ret = ANativeWindow_lock(g_nativewindow.nWindow, g_nativewindow.outBuffer, NULL);
+    int ret = ANativeWindow_lock(g_nativewindow.nWindow, &g_nativewindow.outBuffer, NULL);
     if(ret < 0) {
         RLOG_E_("render window failed,err=%d", ret);
         return ret;
     }
-    int8_t * dst_data = static_cast<int8_t *>(g_nativewindow.outBuffer->bits);
-    int dst_stride = g_nativewindow.outBuffer->stride * 4;
+    int8_t * dst_data = static_cast<int8_t *>(g_nativewindow.outBuffer.bits);
+    int dst_stride = g_nativewindow.outBuffer.stride * 4;
     for(int h=0; h<g_nativewindow.height; h++) {
         memcpy(dst_data+h*dst_stride,src_data+h*src_stride, src_stride);
     }

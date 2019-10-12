@@ -14,22 +14,26 @@ extern "C" {
 #include <libavutil/imgutils.h>
 
 struct FFmpegRender {
-    AVFormatContext *inputFormatCtx;
-    AVFormatContext *outputFormatCtx;
+    AVFormatContext *inputFormatCtx  = NULL;
 
-    AVPacket *avPacket;
-    AVCodec *vCodec;
-    AVCodecContext *vCodecCtx;
-    SwsContext *swsContext;
-    AVFrame *yuvFrame;
-    AVFrame *rgbFrame;
+    AVPacket *avPacket  = NULL;
+    AVCodec *vCodec  = NULL;
+    AVCodecContext *vCodecCtx  = NULL;
+    SwsContext *swsContext = NULL;
+    AVFrame *yuvFrame  = NULL;
+    AVFrame *rgbFrame  = NULL;
+    uint8_t * rgb_buffer;
     int id_video_stream;
+    int video_height;
+    int video_width;
 };
 
 int createRenderFFmpeg(char * url);
 int readH264DataFromAVPacket();
 int decodeH264Data();
 void releaseRenderFFmpeg();
+int getVideoWidth();
+int getVideoHeight();
 
 
 extern FFmpegRender g_render;
