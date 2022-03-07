@@ -21,3 +21,20 @@
 &emsp;该项目利用ffmpeg将rtsp、rtmp等网络流保存到文件，封装格式为MP4。讲解博客：[Android直播开发之旅(16)：FFmpeg保存网络流到本地文件 ](https://jiangdg.blog.csdn.net/article/details/101537742) 
 ![DemoSaveFile](https://img-blog.csdnimg.cn/20190927152645559.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9qaWFuZ2RnLmJsb2cuY3Nkbi5uZXQ=,size_16,color_FFFFFF,t_70)
 
+
+License
+-------
+
+    Copyright 2017-2021 Jiangdongguo
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
